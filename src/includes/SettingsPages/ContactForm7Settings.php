@@ -46,27 +46,61 @@ class ContactForm7Settings
             }
             $email = $formdata[$cf7Email];
 
-            $cf7name = stripslashes(get_option('cf7_fromname', ''));
-            $matches = array();
-            $data = array();
-            preg_match_all('/\[(.*?)\]/', $cf7name, $matches);
+            // Detect the label name of the default name field
+            $cf7name = trim(stripslashes(get_option('cf7_fromname', '')),"[]");
 
-            if (!empty($matches[1])) {
-                foreach ($matches[1] as $match) {
-                    if (isset($formdata[$match])) {
-                        $data[] = $formdata[$match];
+            // Get the label name for the possible extra fields for CF7
+            // And remove any character that isn't A-Z, a-z or 0-9 or _ (so it's compatible with Mailjet's properties requirements)
+            $cf7_extrafield1_name = trim(preg_replace("/[^A-Za-z0-9_]/", '', stripslashes(get_option('mailjet_cf7_extrafield1', ''))),"_");
+            $cf7_extrafield2_name = trim(preg_replace("/[^A-Za-z0-9_]/", '', stripslashes(get_option('mailjet_cf7_extrafield2', ''))),"_");
+
+            // Save those form fields into an array, and remove the empty values if any
+            $fields_list = array_filter(array($cf7name, $cf7_extrafield1_name, $cf7_extrafield2_name));
+
+            // Create an array that will contains the valid data detected in the CF7 form
+            $data = array();
+
+            // Loop through this list of fields, and try to extract the corresponding values from the form, if they exists
+            if (!empty($fields_list)) {
+                foreach ($fields_list as $field) {
+                    if (!empty($formdata[$field])) {
+                        $data[$field] = $formdata[$field];
                     }
                 }
             }
 
-            $newphrase = str_replace($matches[0], $data, $cf7name);
+            // If we found a field matching the cf7name label name, we rename it to 'prop', since that's the default expected label for the name
+            if (!empty($cf7name) && !empty($data[$cf7name])) {
+                $data['prop'] = $data[$cf7name];
+                unset($data[$cf7name]);
+            }
+
+            // Get the name of the Mailjet List we will want to add this user to
             $mailjetCF7List = get_option('mailjet_cf7_list');
 
-            $params = http_build_query(array(
+            // Declare the main and mandatory parameters in an array
+            $main_params = array(
                 'cf7list' => $mailjetCF7List,
                 'email' => $email,
-                'prop' => $newphrase,
-            ));
+            );
+
+            // Loop through the parameters we found and save them into a new array
+            $extra_params = array();
+            if (!empty($data)) {
+                foreach ($data as $key => $value) {
+                    $extra_params[$key] = $value;
+                }
+            }
+
+            // Sort the data array
+            ksort($extra_params);
+
+            // Merge the two arrays
+            $array_params = array_merge($main_params, $extra_params);
+
+            // Build an HTTP parameter string using the parameters we have found
+            $params = http_build_query($array_params);
+
             $wpUrl = sprintf('<a href="%s" target="_blank">%s</a>', get_home_url(), get_home_url());
             $subscriptionTemplate = apply_filters('mailjet_confirmation_email_filename', dirname(dirname(dirname(__FILE__))) . '/templates/confirm-subscription-email.php');
             $message = file_get_contents($subscriptionTemplate);

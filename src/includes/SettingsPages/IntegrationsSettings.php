@@ -28,27 +28,27 @@ class IntegrationsSettings
 
     private function wooIntegration($mailjetSyncContactList )
     {
-	    $wooCommerceNotInstalled        = false;
-	    // One can also check for `if (defined('WC_VERSION')) { // WooCommerce installed }`
-	    if ( ! class_exists( 'WooCommerce' ) ) {
-		    delete_option( 'activate_mailjet_woo_integration' );
+        $wooCommerceNotInstalled        = false;
+        // One can also check for `if (defined('WC_VERSION')) { // WooCommerce installed }`
+        if ( ! class_exists( 'WooCommerce' ) ) {
+            delete_option( 'activate_mailjet_woo_integration' );
             delete_option( 'mailjet_woo_edata_sync' );
-		    delete_option( 'mailjet_woo_checkout_checkbox' );
-		    delete_option( 'mailjet_woo_checkout_box_text' );
-		    delete_option( 'mailjet_woo_banner_checkbox' );
-		    delete_option( 'mailjet_woo_banner_text' );
-		    delete_option( 'mailjet_woo_banner_label' );
+            delete_option( 'mailjet_woo_checkout_checkbox' );
+            delete_option( 'mailjet_woo_checkout_box_text' );
+            delete_option( 'mailjet_woo_banner_checkbox' );
+            delete_option( 'mailjet_woo_banner_text' );
+            delete_option( 'mailjet_woo_banner_label' );
             delete_option('mailjet_woo_abandoned_cart_activate');
             delete_option('mailjet_woo_abandoned_cart_sending_time');
-		    $wooCommerceNotInstalled = true;
-	    }
+            $wooCommerceNotInstalled = true;
+        }
 
         $mailjetWooSyncActivated        = get_option( 'mailjet_woo_edata_sync' );
         $mailjetWooIntegrationActivated = get_option( 'activate_mailjet_woo_integration' );
 
         $checkoutCheckbox = get_option( 'mailjet_woo_checkout_checkbox' );
         if ($checkoutCheckbox !== '1'){
-	        delete_option( 'mailjet_woo_checkout_box_text' );
+            delete_option( 'mailjet_woo_checkout_box_text' );
         }
         $checkoutCheckboxText = stripslashes(get_option('mailjet_woo_checkout_box_text'));
 
@@ -154,12 +154,16 @@ class IntegrationsSettings
             delete_option('mailjet_cf7_list');
             delete_option('cf7_email');
             delete_option('cf7_fromname');
+            delete_option('mailjet_cf7_extrafield1');
+            delete_option('mailjet_cf7_extrafield2');
         }
 
         $mailjetCF7IntegrationActivated = get_option( 'activate_mailjet_cf7_integration' );
         $mailjetCF7List                 = get_option( 'mailjet_cf7_list' );
         $email                          = stripslashes(get_option( 'cf7_email' ));
         $from                           = stripslashes(get_option( 'cf7_fromname' ));
+        $cf7_extrafield1                = stripslashes(get_option( 'mailjet_cf7_extrafield1' ));
+        $cf7_extrafield2                = stripslashes(get_option( 'mailjet_cf7_extrafield2' ));
         ?>
         <fieldset class="settingsSubscrFldset">
             <span class="mj-integrations-label"><?php _e( 'Contact Form 7', 'mailjet-for-wordpress' ); ?></span>
@@ -208,6 +212,25 @@ class IntegrationsSettings
                     </svg>
                     <input name="cf7[cf7_fromname]" id="cf7_fromname" value="<?php echo $from ?>"
                            placeholder="<?php _e( 'e.g. [your-name]', 'mailjet-for-wordpress' ) ?>"
+                           class="widefat cf7_input"/>
+                </div>
+                <div>
+                    <label for="mailjet_cf7_extrafield1"
+                           class="cf7_input_label"><?php _e( 'First extra field tag (optional, accepted chars: A-Z, a-z, 0-9, _)', 'mailjet-for-wordpress' ) ?></label>
+                    <svg viewBox="0 0 16 16" style="height: 16px;">
+                        <path d="M8 0C3.589 0 0 3.59 0 8c0 4.412 3.589 8 8 8s8-3.588 8-8c0-4.41-3.589-8-8-8zm0 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm.75-3.875V10h-1.5V7.667H8c.828 0 1.5-.698 1.5-1.556 0-.859-.672-1.555-1.5-1.555s-1.5.696-1.5 1.555H5C5 4.396 6.346 3 8 3s3 1.396 3 3.111c0 1.448-.958 2.667-2.25 3.014z"/>
+                    </svg>
+                    <input name="cf7[mailjet_cf7_extrafield1]" id="mailjet_cf7_extrafield1" value="<?php echo $cf7_extrafield1 ?>"
+                           placeholder="<?php _e( 'e.g. [city]', 'mailjet-for-wordpress' ) ?>"
+                           class="widefat cf7_input"/>
+                <div>
+                    <label for="mailjet_cf7_extrafield2"
+                           class="cf7_input_label"><?php _e( 'Second extra field tag (optional, accepted chars: A-Z, a-z, 0-9, _)', 'mailjet-for-wordpress' ) ?></label>
+                    <svg viewBox="0 0 16 16" style="height: 16px;">
+                        <path d="M8 0C3.589 0 0 3.59 0 8c0 4.412 3.589 8 8 8s8-3.588 8-8c0-4.41-3.589-8-8-8zm0 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm.75-3.875V10h-1.5V7.667H8c.828 0 1.5-.698 1.5-1.556 0-.859-.672-1.555-1.5-1.555s-1.5.696-1.5 1.555H5C5 4.396 6.346 3 8 3s3 1.396 3 3.111c0 1.448-.958 2.667-2.25 3.014z"/>
+                    </svg>
+                    <input name="cf7[mailjet_cf7_extrafield2]" id="mailjet_cf7_extrafield2" value="<?php echo $cf7_extrafield2 ?>"
+                           placeholder="<?php _e( 'e.g. [country]', 'mailjet-for-wordpress' ) ?>"
                            class="widefat cf7_input"/>
                 </div>
                 <div>

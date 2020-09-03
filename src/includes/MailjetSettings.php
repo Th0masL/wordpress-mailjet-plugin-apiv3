@@ -81,6 +81,8 @@ class MailjetSettings
         register_setting('mailjet_integrations_page', 'cf7_email');
         register_setting('mailjet_integrations_page', 'cf7_fromname');
         register_setting('mailjet_integrations_page', 'settings_step');
+        register_setting('mailjet_integrations_page', 'mailjet_cf7_extrafield1');
+        register_setting('mailjet_integrations_page', 'mailjet_cf7_extrafield2');
     }
 
     public function mailjet_settings_init()
@@ -217,14 +219,49 @@ class MailjetSettings
             }
 
             $email = sanitize_email($_GET['email']);
-            $name = sanitize_text_field($_GET['prop']);
+            // Try to get the prop value from $_GET, and set it to empty if not present
+            if (!empty($_GET['prop'])) {
+                $name = sanitize_text_field($_GET['prop']);
+            }
+            else {
+                $name = "";
+            }
 
-            $params = http_build_query(array(
+            // Get the label name for the possible extra fields for CF7
+            // And remove any character that isn't A-Z, a-z or 0-9 or _ (so it's compatible with Mailjet's properties requirements)
+            $cf7_extrafield1_name = trim(preg_replace("/[^A-Za-z0-9_]/", '', stripslashes(get_option('mailjet_cf7_extrafield1', ''))),"_");
+            $cf7_extrafield2_name = trim(preg_replace("/[^A-Za-z0-9_]/", '', stripslashes(get_option('mailjet_cf7_extrafield2', ''))),"_");
+
+            // Try to extract from $_GET the value associated with those variables
+            if (!empty($cf7_extrafield1_name) && !empty($_GET[$cf7_extrafield1_name])) { $cf7_extrafield1_value = sanitize_text_field($_GET[$cf7_extrafield1_name]); }
+            if (!empty($cf7_extrafield2_name) && !empty($_GET[$cf7_extrafield2_name])) { $cf7_extrafield2_value = sanitize_text_field($_GET[$cf7_extrafield2_name]); }
+
+            // Declare the main and mandatory parameters in an array
+            $main_params = array(
                 'cf7list' => $contactListId,
                 'email' => $email,
-                'prop' => $name
-            ));
+            );
 
+            // If the prop parameter is set, add it to an array
+            $extra_params = array();
+            if (!empty($name)) {
+                $extra_params['prop'] = $name;
+            }
+
+            // If the extra parameters are set, add them into the array
+            if (!empty($cf7_extrafield1_name) && !empty($cf7_extrafield1_value)) { $extra_params[$cf7_extrafield1_name] = $cf7_extrafield1_value; }
+            if (!empty($cf7_extrafield2_name) && !empty($cf7_extrafield2_value)) { $extra_params[$cf7_extrafield2_name] = $cf7_extrafield2_value; }
+
+            // Sort the extra_params array
+            ksort($extra_params);
+
+            // Merge the two arrays
+            $array_params = array_merge($main_params, $extra_params);
+
+            // Build an HTTP parameter string using the parameters we have found
+            $params = http_build_query($array_params);
+
+            // Make sure that the token received in $_GET is valid
             if (sha1($params . MailjetSettings::getCryptoHash()) !== $_GET['token']) {
                 return false;
             }
@@ -236,6 +273,17 @@ class MailjetSettings
             $contact['Email'] = $email;
             $contact['Properties']['name'] = $name;
             MailjetApi::createMailjetContactProperty('name');
+
+            // If the extra fields values are set, add them to the contact[Properties] array and create the MailjetContactProperty
+            if (!empty($cf7_extrafield1_value)) {
+            	$contact['Properties'][$cf7_extrafield1_name] = $cf7_extrafield1_value;
+            	MailjetApi::createMailjetContactProperty($cf7_extrafield1_name);
+            }
+            if (!empty($cf7_extrafield2_value)) {
+            	$contact['Properties'][$cf7_extrafield2_name] = $cf7_extrafield2_value;
+            	MailjetApi::createMailjetContactProperty($cf7_extrafield2_name);
+            }
+
             $syncSingleContactEmailToMailjetList = MailjetApi::syncMailjetContact($contactListId, $contact);
             if (false === $syncSingleContactEmailToMailjetList) {
                 echo $technicalIssue;

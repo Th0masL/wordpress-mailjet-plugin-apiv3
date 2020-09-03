@@ -67,6 +67,8 @@ delete_option('activate_mailjet_cf7_integration');
 delete_option('mailjet_cf7_list');
 delete_option('cf7_email');
 delete_option('cf7_fromname');
+delete_option('mailjet_cf7_extrafield_1');
+delete_option('mailjet_cf7_extrafield_2');
 
 delete_option('activate_mailjet_woo_integration');
 

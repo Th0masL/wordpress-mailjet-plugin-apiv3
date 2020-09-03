@@ -873,6 +873,22 @@ msgstr "Libellé du champ nom (facultatif)"
 msgid "e.g. [your-name]"
 msgstr "Par exemple [votre-nom]"
 
+#: src/includes/SettingsPages/IntegrationsSettings.php:219
+msgid "First extra field tag (optional, accepted chars: A-Z, a-z, 0-9, _)"
+msgstr "Libellé du premier champ additionnel (facultatif, caractères acceptés: A-Z, a-z, 0-9, _)"
+
+#: src/includes/SettingsPages/IntegrationsSettings.php:224
+msgid "e.g. [city]"
+msgstr "Par exemple [ville]"
+
+#: src/includes/SettingsPages/IntegrationsSettings.php:229
+msgid "Second extra field tag (optional, accepted chars: A-Z, a-z, 0-9, _)"
+msgstr "Libellé du second champ additionnel (facultatif, caractères acceptés: A-Z, a-z, 0-9, _)"
+
+#: src/includes/SettingsPages/IntegrationsSettings.php:234
+msgid "e.g. [country]"
+msgstr "Par exemple [pays]"
+
 #: src/includes/SettingsPages/IntegrationsSettings.php:216
 msgid ""
 "Include the following shortcode in your contact form in order to display the "
@@ -1551,3 +1567,13 @@ msgstr ""
 
 #~ msgid "Enable Contact Form 7 integration"
 #~ msgstr "Activer l'intégration Contact Form 7"
+
+#: src/includes/MailjetSettings.php:333
+#: src/widget/WP_Mailjet_Subscribe_Widget.php:287
+msgid "Newsletter Registration"
+msgstr "Inscription à la Newsletter"
+
+#: src/includes/MailjetSettings.php:334
+#: src/widget/WP_Mailjet_Subscribe_Widget.php:288
+msgid "Congratulations, you have successfully subscribed!"
+msgstr "Félicitations, vous êtes maintenant abonnés à la newsletter!"
