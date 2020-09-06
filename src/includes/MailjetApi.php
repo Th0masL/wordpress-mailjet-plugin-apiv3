@@ -22,7 +22,7 @@ class MailjetApi
 {
 
     // Thomas - Add Debug Variable
-    CONST DEBUG_MODE = 'no';
+    CONST DEBUG_MODE = 'yes';
 
     private static $mjApiClient = null;
 

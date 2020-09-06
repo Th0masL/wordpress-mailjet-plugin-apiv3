@@ -25,7 +25,7 @@ class SubscriptionOptionsSettings
     CONST WP_PROP_USER_ROLE = 'wp_user_role';
 
     // Thomas - Add Debug Variable
-    CONST DEBUG_MODE = 'no';
+    CONST DEBUG_MODE = 'yes';
 
     private static $instance;
 
