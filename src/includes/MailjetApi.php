@@ -390,7 +390,7 @@ class MailjetApi
 
         // Thomas - Add some debug
         if (self::DEBUG_MODE == 'yes') {
-            file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - Entered function syncMailjetContact\n", FILE_APPEND);
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Entered function syncMailjetContact\n", FILE_APPEND);
         }
 
         try {
@@ -398,7 +398,7 @@ class MailjetApi
         } catch (\Exception $e) {
             // Thomas - Add some debug
             if (self::DEBUG_MODE == 'yes') {
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - Exception happened.\n", FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Exception happened.\n", FILE_APPEND);
             }
             return false;
         }
@@ -413,22 +413,22 @@ class MailjetApi
 
             // Thomas - Add some debug
             if (self::DEBUG_MODE == 'yes') {
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - ConnectException happened.\n", FILE_APPEND);
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - ConnectException :\n".print_r($e, true), FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - ConnectException happened.\n", FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - ConnectException :\n".print_r($e, true), FILE_APPEND);
             }
             return false;
         }
         if ($response->success()) {
             // Thomas - Add some debug
             if (self::DEBUG_MODE == 'yes') {
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - Received response is success\n", FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Received response is success\n", FILE_APPEND);
             }
             return $response->getData();
         } else {
             // Thomas - Add some debug
             if (self::DEBUG_MODE == 'yes') {
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - Received response NOT success\n", FILE_APPEND);
-                file_put_contents('/tmp/php.log', date("Y-m-d H:i:s")." - Response :\n".print_r($response, true), FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Received response NOT success\n", FILE_APPEND);
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Response :\n".print_r($response, true), FILE_APPEND);
             }
             return false;
 //            return $response->getStatus();
