@@ -24,6 +24,9 @@ class SubscriptionOptionsSettings
     CONST PROP_USER_LASTNAME = 'lastname';
     CONST WP_PROP_USER_ROLE = 'wp_user_role';
 
+    // Thomas - Add Debug Variable
+    CONST DEBUG_MODE = 'no';
+
     private static $instance;
 
     private $subscrFieldset = '/settingTemplates/SubscriptionSettingsPartials/subscrFieldset.php';
@@ -213,6 +216,11 @@ class SubscriptionOptionsSettings
      */
     public static function syncContactsToMailjetList($contactListId, $users, $action)
     {
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - syncContactsToMailjetList - enter\n", FILE_APPEND);
+        }
+
         $contacts = array();
 
         if (!is_array($users)) {
@@ -238,11 +246,21 @@ class SubscriptionOptionsSettings
                 $contactProperties[self::WP_PROP_USER_ROLE] = $userRoles[0];
             }
 
+            // Thomas - Add some debug
+            if (self::DEBUG_MODE == 'yes') {
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Value of contactProperties :\n".print_r($contactProperties, true), FILE_APPEND);
+            }
+
             $contacts[] = array(
                 'Email' => $user->user_email,
                 'Name' => $userNames,
                 'Properties' => $contactProperties
             );
+        }
+
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - About to call syncMailjetContacts from syncContactsToMailjetList\n", FILE_APPEND);
         }
 
         return MailjetApi::syncMailjetContacts($contactListId, $contacts, $action);
@@ -251,13 +269,29 @@ class SubscriptionOptionsSettings
 
     public static function syncSingleContactEmailToMailjetList($contactListId, $email, $action, $contactProperties = [])
     {
+
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - syncSingleContactEmailToMailjetList - enter - user: ".$email."\n", FILE_APPEND);
+        }
+
         if (empty($email)) {
             return false;
+        }
+
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Value of contactProperties:\n".print_r($contactProperties, true), FILE_APPEND);
         }
 
         $contact = [];
         $contact['Email'] = $email;
         $contact['Properties'] = $contactProperties;
+
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - About to enter syncMailjetContact for user ".$email."\n", FILE_APPEND);
+        }
 
         return MailjetApi::syncMailjetContact($contactListId, $contact, $action);
     }
@@ -272,6 +306,13 @@ class SubscriptionOptionsSettings
     }
 
     public function mailjet_register_user($userId) {
+
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            $userInfo = get_userdata($userId);
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - mailjet_register_user - enter - user: ".$userInfo->user_email."\n", FILE_APPEND);
+        }
+
         $activate_mailjet_sync = get_option('activate_mailjet_sync');
         $mailjet_sync_list = get_option('mailjet_sync_list');
         $user = get_userdata($userId);
@@ -350,6 +391,13 @@ class SubscriptionOptionsSettings
      */
     public function mailjet_save_extra_profile_fields($user_id)
     {
+
+        // Thomas - Add some debug
+        $userInfo = get_userdata($user_id);
+        if (self::DEBUG_MODE == 'yes') {
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - mailjet_save_extra_profile_fields - enter - user: ".$userInfo->user_email."\n", FILE_APPEND);
+        }
+
         if (isset($_POST ['mailjet_subscribe_extra_field'])) {
             $subscribe = isset($_POST ['mailjet_subscribe_ok']) ? filter_var($_POST ['mailjet_subscribe_ok'], FILTER_SANITIZE_NUMBER_INT) : 0;
             update_user_meta($user_id, 'mailjet_subscribe_ok', $subscribe);
@@ -363,6 +411,12 @@ class SubscriptionOptionsSettings
      */
     public function mailjet_subscribe_unsub_user_to_list($subscribe, $user_id)
     {
+        // Thomas - Add some debug
+        if (self::DEBUG_MODE == 'yes') {
+            $userInfo = get_userdata($user_id);
+            file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - mailjet_subscribe_unsub_user_to_list - enter - user: ".$userInfo->user_email."\n", FILE_APPEND);
+        }
+
         $mailjet_sync_list = get_option('mailjet_sync_list');
         if (!empty($mailjet_sync_list)) {
             $user = get_userdata($user_id);
@@ -382,8 +436,18 @@ class SubscriptionOptionsSettings
             }
             // Add the user to a contact list
             if (false === self::syncSingleContactEmailToMailjetList(get_option('mailjet_sync_list'), $user->user_email, $action, $contactProperties)) {
+
+            // Thomas - Add some debug
+            if (self::DEBUG_MODE == 'yes') {
+                file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Failed to run the function syncSingleContactEmailToMailjetList for user ".$user->user_email."\n", FILE_APPEND);
+            }
                 return false;
             } else {
+
+                // Thomas - Add some debug
+                if (self::DEBUG_MODE == 'yes') {
+                    file_put_contents('/tmp/mailjet.log', date("Y-m-d H:i:s")." - Successfully ran the function syncSingleContactEmailToMailjetList for user ".$user->user_email."\n", FILE_APPEND);
+                }
                 return true;
             }
         }
